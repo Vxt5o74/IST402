@@ -1,0 +1,12 @@
+import random
+import string
+
+myPassword = input("Enter a password for the computer to try and guess: ")
+passwordLength = len(myPassword)
+while True:
+    passwordGuess = ''.join([random.choice(string.ascii_letters + string.digits)for n in range(passwordLength)])
+    print(passwordGuess)
+    if passwordGuess == myPassword:
+        print("Password guessed successfully!")
+        print("The password that was set is:", passwordGuess)
+        break
