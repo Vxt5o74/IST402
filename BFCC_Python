@@ -1,12 +1,21 @@
-import random
-import string
+letters = "abcdefghijklmnopqrstuvwxyz"
+enc_string = "uld fvyr"
 
-myPassword = input("Enter a password for the computer to try and guess: ")
-passwordLength = len(myPassword)
-while True:
-    passwordGuess = ''.join([random.choice(string.ascii_letters + string.digits)for n in range(passwordLength)])
-    print(passwordGuess)
-    if passwordGuess == myPassword:
-        print("Password guessed successfully!")
-        print("The password that was set is:", passwordGuess)
-        break
+x = 0
+print("Provided text: ", enc_string)
+while x < 26:
+    x = x + 1
+    string_to_decrypt = enc_string
+    string_to_decrypt = string_to_decrypt.lower()
+    cipher_shift = int(x)
+    string_decrypted = ""
+    for character in string_to_decrypt:
+        position = letters.find(character)
+        new_position = position - cipher_shift
+        if character in letters:
+            string_decrypted = string_decrypted + letters[new_position]
+        else:
+            string_decrypted = string_decrypted + character
+
+    cipher_shift = str(cipher_shift)
+    print("Key: ", cipher_shift, "Text: ", string_decrypted)
