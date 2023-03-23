@@ -1,0 +1,32 @@
+from Crypto.Random import get_random_bytes
+
+# establishes parameters like key and initialization vector, along with requesting for sample text from user
+plaintext = input("Enter plaintext: ")
+key = get_random_bytes(32)
+iv = pad(b'myiv', AES.block_size)
+print("Provided sample: ", plaintext)
+
+
+# function to encrypt proided sample text
+def _encrypt(plaintext):
+    data_bytes = bytes(plaintext, 'utf-8')
+    AES_object = AES.new(key, AES.MODE_CFB, iv)
+    ciphertext = AES_object.encrypt(data_bytes)
+    return ciphertext
+
+
+# prints out encrypted sample text and provided sample text for reference
+ciphertext = _encrypt(plaintext)
+print("Encrypted sample: ", ciphertext)
+
+
+# function to decrypt the encrypted sample text from above
+def _decrypt(ciphertext):
+    AES_object = AES.new(key, AES.MODE_CFB, iv)
+    raw_bytes = AES_object.decrypt(ciphertext)
+    return raw_bytes
+
+
+# prints out decrypted sample text
+plaintext = _decrypt(ciphertext)
+print("Decrypted sample: ", plaintext)
