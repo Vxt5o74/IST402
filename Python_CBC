@@ -1,13 +1,14 @@
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
-import binascii
+
 
 
 # establishes parameters like key and initialization vector along with asking for user's sample text
 plaintext = input("Enter plaintext: ")
 key = get_random_bytes(32)
 iv = pad(b"myiv", AES.block_size)
+print("Provided text sample: ", plaintext)
 
 
 # function to encrypt the provided text sample
@@ -21,8 +22,8 @@ def _encrypt(plaintext):
 
 # prints out encrypted text along with provided sample text for reference
 ciphertext = _encrypt(plaintext)
-print(ciphertext)
-print(binascii.hexlify(ciphertext))
+print("Encrypted text sample: ", ciphertext)
+
 
 
 # function to decrypt sample text from above
@@ -35,5 +36,5 @@ def _decrypt(ciphertext):
 
 # prints out decrypted text
 plaintext = _decrypt(ciphertext)
-print(plaintext)
-print(plaintext.decode('ascii'))
+print("Decrypted sample text: ", plaintext)
+
