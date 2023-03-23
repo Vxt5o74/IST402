@@ -2,14 +2,32 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 import binascii
 
+# get plaintext sample from user and establish parameters for key and initialization vector
 plaintext = 'foewhksdafdnsdklfhds21312ueoqweoeuqwoeqwoleqweqw9oeuqwoeyqiwue'
 key = pad(b"mykey", AES.block_size)
 iv = pad(b"myiv", AES.block_size)
 
-
+# function to encrypt plaintext
 def _encrypt(plaintext):
     data_bytes = bytes(plaintext, 'utf-8')
     padded_bytes = pad(data_bytes, AES.block_size)
     AES_object = AES.new(key, AES.MODE_CBC, iv)
     ciphertext = AES_object.encrypt(padded_bytes)
     return ciphertext
+
+# printing out the plaintext as it undergoes each step of the encryption process
+ciphertext = _encrypt(plaintext)
+print(ciphertext)
+print(binascii.hexlify(ciphertext))
+
+# function to decrypt the ciphertext back to plaintext
+def _decrypt(ciphertext):
+    AES_object = AES.new(key, AES.MODE_CBC, iv)
+    raw_bytes = AES_object.decrypt(ciphertext)
+    extracted_bytes = unpad(raw_bytes, AES.block_size)
+    return extracted_bytes
+
+# printing out the cipher text as it undergoes each step of the decryption process
+plaintext = _decrypt(ciphertext)
+print(plaintext)
+print(plaintext.decode('ascii'))
