@@ -31,8 +31,12 @@ func main() {
 		} else {
 			xor = lookupValue
 		}
-		lookupValue = codebookLookup(xor)
+
+		keystream := codebookLookup(xor)
+		cipher := message[x] ^ keystream
+		lookupValue = keystream
 		x++
-		fmt.Printf("The ciphered value of a is %b\n", lookupValue)
+		fmt.Printf("The ciphered value of a is %b\n", cipher)
+
 	}
 }
