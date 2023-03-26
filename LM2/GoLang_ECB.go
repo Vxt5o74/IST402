@@ -30,4 +30,6 @@ func main() {
 		x++
 		fmt.Printf("The ciphered value of a is %b\n", cipher)
 	}
+	fmt.Printf("The final value of xor is %b\n", xor)
+	fmt.Printf("The final value of lookupValue is %b\n", lookupValue)
 }
