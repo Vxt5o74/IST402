@@ -1,0 +1,58 @@
+package main
+
+import (
+	"crypto/sha256"
+	"fmt"
+	"golang.org/x/crypto/chacha20poly1305"
+	"os"
+)
+
+func main() {
+
+	// asking user for message to be encrypted and decrypted
+	fmt.Println("Enter message: ")
+	var msg string
+	fmt.Scanln(&msg)
+  
+	//asking user for password to be utilized as the key when XORing together ciphered key-stream
+	fmt.Println("Enter password: ")
+	var password string
+	fmt.Scanln(&password)
+
+	argCount := len(os.Args[1:])
+
+	if argCount > 0 {
+		msg = string(os.Args[1])
+	}
+	if argCount > 1 {
+		password = string(os.Args[2])
+	}
+
+	key := sha256.Sum256([]byte(password))
+	aead, _ := chacha20poly1305.NewX(key[:])
+
+	if password == "" {
+		a := make([]byte, 32)
+		copy(key[:32], a[:32])
+		aead, _ = chacha20poly1305.NewX(a)
+	}
+
+	if msg == "" {
+		a := make([]byte, 32)
+		msg = string(a)
+
+	}
+  
+	//generating nonce, along with encrypting and decrypting provided user text
+	nonce := make([]byte, chacha20poly1305.NonceSizeX)
+	ciphertext := aead.Seal(nil, nonce, []byte(msg), nil)
+	plaintext, _ := aead.Open(nil, nonce, ciphertext, nil)
+
+	fmt.Printf("Message:\t%s\n", msg)
+	fmt.Printf("Passphrase:\t%s\n", password)
+	fmt.Printf("\nKey:\t%x\n", key)
+	fmt.Printf("Nonce:\t%x\n", nonce)
+	fmt.Printf("\nCipher stream:\t%x\n", ciphertext)
+	fmt.Printf("Plain text:\t%s\n", plaintext)
+
+}
