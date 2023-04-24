@@ -1,0 +1,35 @@
+package main
+
+import (
+	"fmt"
+	Ecies "github.com/ecies/go/v2"
+)
+
+func main() {
+	//asks user to provide input to be encrypted and decrypted
+	fmt.Println("Provide user string: ")
+	var UserString string
+	fmt.Scanln(&UserString)
+
+	//generating key to be used in encryption and decryption
+	k, err := Ecies.GenerateKey()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Key pair has been generated: ", k)
+
+	//encrypts provided plaintext using the key generated
+	ciphertext, err := Ecies.Encrypt(k.PublicKey, []byte(UserString))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Plaintext encrypted: ", ciphertext)
+
+	//decrypts the newly made ciphertext using the key generated
+	plaintext, err := Ecies.Decrypt(k, ciphertext)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Ciphertext decrypted: ", string(plaintext))
+
+}
