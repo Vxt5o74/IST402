@@ -1,0 +1,84 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"strings"
+	"time"
+)
+
+const alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+func main() {
+	// Generates a random substitution cipher key
+	key := generateKey()
+
+	// Asking the user for a message to encode and decode (can't have spaces as of rn)
+	fmt.Println("What would you like to enter into the machine?")
+	var message string
+	fmt.Scanln(&message)
+
+	// Encodes the message using the key
+	encodedMessage, err := substitute(message, key)
+	if err != nil {
+		fmt.Println("Error encoding message:", err)
+		return
+	}
+
+	fmt.Println("Encoded message:", encodedMessage)
+
+	// Decodes the message using the key
+	decodedMessage, err := substitute(encodedMessage, invertKey(key))
+	if err != nil {
+		fmt.Println("Error decoding message:", err)
+		return
+	}
+
+	fmt.Println("Decoded message:", decodedMessage)
+}
+
+// Generates a random substitution cipher key
+func generateKey() string {
+	rand.Seed(time.Now().UnixNano())
+	key := strings.Split(alphabet, "")
+	rand.Shuffle(len(key), func(i, j int) { key[i], key[j] = key[j], key[i] })
+	return strings.Join(key, "")
+}
+
+// Applies a substitution cipher to a message
+func substitute(message string, key string) (string, error) {
+	// Convert the message to lowercase
+	message = strings.ToLower(message)
+
+	// Just used to contain the en/decoded message
+	result := ""
+
+	// Loops over each letter in the message
+	for _, letter := range message {
+		// If the letter is in the alphabet, it'll replace it with the corresponding letter from the key
+		if index := strings.IndexRune(alphabet, letter); index >= 0 {
+			result += string(key[index])
+		} else {
+			// If the letter is not in the alphabet, it adds it to the result string
+			result += string(letter)
+		}
+	}
+
+	return result, nil
+}
+
+// Inverts the substitution cipher key (for decoding messages)
+func invertKey(key string) string {
+	invertedKey := ""
+
+	// Loop over each letter in the alphabet and find its corresponding letter in the key
+	for _, letter := range alphabet {
+		if index := strings.IndexRune(key, letter); index >= 0 {
+			invertedKey += string(alphabet[index])
+		} else {
+			invertedKey += string(letter)
+		}
+	}
+
+	return invertedKey
+}
