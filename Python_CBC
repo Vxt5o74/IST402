@@ -1,40 +1,31 @@
-from Crypto.Cipher import AES
+from Crypto.Cipher import Blowfish
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
 
+# Asking user to provide plaintext
+plaintext = input("Enter plaintext: ").encode('utf-8')
 
+# Generating a random key and initialization vector
+key = get_random_bytes(16)
+iv = get_random_bytes(Blowfish.block_size)
 
-# establishes parameters like key and initialization vector along with asking for user's sample text
-plaintext = input("Enter plaintext: ")
-key = get_random_bytes(32)
-iv = pad(b"myiv", AES.block_size)
-print("Provided text sample: ", plaintext)
+print("Provided text sample: ", plaintext.decode('utf-8'))
 
-
-# function to encrypt the provided text sample
+# Encrypting the plaintext using Blowfish in CBC mode
 def _encrypt(plaintext):
-    data_bytes = bytes(plaintext, 'utf-8')
-    padded_bytes = pad(data_bytes, AES.block_size)
-    AES_object = AES.new(key, AES.MODE_CBC, iv)
-    ciphertext = AES_object.encrypt(padded_bytes)
+    cipher = Blowfish.new(key, Blowfish.MODE_CBC, iv=iv)
+    ciphertext = cipher.encrypt(pad(plaintext, Blowfish.block_size))
     return ciphertext
 
-
-# prints out encrypted text along with provided sample text for reference
 ciphertext = _encrypt(plaintext)
 print("Encrypted text sample: ", ciphertext)
 
 
-
-# function to decrypt sample text from above
+# Decrypting the ciphertext using Blowfish in CBC mode
 def _decrypt(ciphertext):
-    AES_object = AES.new(key, AES.MODE_CBC, iv)
-    raw_bytes = AES_object.decrypt(ciphertext)
-    extracted_bytes = unpad(raw_bytes, AES.block_size)
-    return extracted_bytes
+    cipher = Blowfish.new(key, Blowfish.MODE_CBC, iv=iv)
+    plaintext = unpad(cipher.decrypt(ciphertext), Blowfish.block_size)
+    return plaintext
 
-
-# prints out decrypted text
 plaintext = _decrypt(ciphertext)
-print("Decrypted sample text: ", plaintext)
-
+print("Decrypted sample text: ", plaintext.decode('utf-8'))
