@@ -2,83 +2,80 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
-	"time"
 )
 
-const alphabet = "abcdefghijklmnopqrstuvwxyz"
+type rotor struct {
+	wiring string
+	offset int
+}
+
+func (r *rotor) forward(c byte) byte {
+	i := int(c-'A'+byte(r.offset)) % 26
+	return r.wiring[i]
+}
+
+func (r *rotor) backward(c byte) byte {
+	i := strings.IndexByte(r.wiring, c)
+	i = (i - r.offset + 26) % 26
+	return byte(i + 'A')
+}
+
+type reflector struct {
+	wiring string
+}
+
+func (r *reflector) reflect(c byte) byte {
+	i := strings.IndexByte(r.wiring, c)
+	return r.wiring[(i+13)%26]
+}
+
+type plugboard struct {
+	pairs map[byte]byte
+}
+
+func (p *plugboard) plug(c byte) byte {
+	if v, ok := p.pairs[c]; ok {
+		return v
+	}
+	return c
+}
+
+type enigma struct {
+	rotors    []*rotor
+	reflector *reflector
+	plugboard *plugboard
+}
+
+func (e *enigma) forward(c byte) byte {
+	for i := len(e.rotors) - 1; i >= 0; i-- {
+		c = e.rotors[i].forward(c)
+	}
+	c = e.reflector.reflect(c)
+	for i := 0; i < len(e.rotors); i++ {
+		c = e.rotors[i].backward(c)
+	}
+	c = e.plugboard.plug(c)
+	return c
+}
+
+func (e *enigma) encrypt(s string) string {
+	out := make([]byte, len(s))
+	for i := 0; i < len(s); i++ {
+		out[i] = e.forward(s[i])
+	}
+	return string(out)
+}
 
 func main() {
-	// Generates a random substitution cipher key
-	key := generateKey()
-
-	// Asking the user for a message to encode and decode (can't have spaces as of rn)
-	fmt.Println("What would you like to enter into the machine?")
-	var message string
-	fmt.Scanln(&message)
-
-	// Encodes the message using the key
-	encodedMessage, err := substitute(message, key)
-	if err != nil {
-		fmt.Println("Error encoding message:", err)
-		return
-	}
-
-	fmt.Println("Encoded message:", encodedMessage)
-
-	// Decodes the message using the key
-	decodedMessage, err := substitute(encodedMessage, invertKey(key))
-	if err != nil {
-		fmt.Println("Error decoding message:", err)
-		return
-	}
-
-	fmt.Println("Decoded message:", decodedMessage)
-}
-
-// Generates a random substitution cipher key
-func generateKey() string {
-	rand.Seed(time.Now().UnixNano())
-	key := strings.Split(alphabet, "")
-	rand.Shuffle(len(key), func(i, j int) { key[i], key[j] = key[j], key[i] })
-	return strings.Join(key, "")
-}
-
-// Applies a substitution cipher to a message
-func substitute(message string, key string) (string, error) {
-	// Convert the message to lowercase
-	message = strings.ToLower(message)
-
-	// Just used to contain the en/decoded message
-	result := ""
-
-	// Loops over each letter in the message
-	for _, letter := range message {
-		// If the letter is in the alphabet, it'll replace it with the corresponding letter from the key
-		if index := strings.IndexRune(alphabet, letter); index >= 0 {
-			result += string(key[index])
-		} else {
-			// If the letter is not in the alphabet, it adds it to the result string
-			result += string(letter)
-		}
-	}
-
-	return result, nil
-}
-
-// Inverts the substitution cipher key (for decoding messages)
-func invertKey(key string) string {
-	invertedKey := ""
-
-	// Loop over each letter in the alphabet and find its corresponding letter in the key
-	for _, letter := range alphabet {
-		if index := strings.IndexRune(key, letter); index >= 0 {
-			invertedKey += string(alphabet[index])
-		} else {
-			invertedKey += string(letter)
-		}
-	}
-
-	return invertedKey
+	r1 := &rotor{wiring: "EKMFLGDQVZNTOWYHXUSPAIBRCJ", offset: 0}
+	r2 := &rotor{wiring: "AJDKSIRUXBLHWTMCQGZNPYFVOE", offset: 0}
+	r3 := &rotor{wiring: "BDFHJLCPRTXVZNYEIWGAKMUSQO", offset: 0}
+	ref := &reflector{wiring: "YRUHQSLDPXNGOKMIEBFZCWVJAT"}
+	pb := &plugboard{pairs: map[byte]byte{'A': 'B', 'C': 'D', 'E': 'F'}}
+	e := &enigma{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
+	plaintext := "HELLO WORLD"
+	ciphertext := e.encrypt(plaintext)
+	fmt.Println("Plaintext:", plaintext)
+	fmt.Println("Ciphertext:", ciphertext)
 }
