@@ -5,35 +5,47 @@ import (
 	"strings"
 )
 
+// Setting up rotor structure
 type rotor struct {
 	wiring string
 	offset int
 }
 
+// Function for rotors to move forwards in relation to the set mapping/wiring, 
+// allowing plaintext to be encrypted to ciphertext
 func (r *rotor) forward(c byte) byte {
 	i := int(c-'A'+byte(r.offset)) % 26
 	return r.wiring[i]
 }
 
+// Function for rotors to move backwards in relation to the set mapping/wiring, 
+// allowing ciphertext to then be decrypted back to plaintext
 func (r *rotor) backward(c byte) byte {
 	i := strings.IndexByte(r.wiring, c)
 	i = (i - r.offset + 26) % 26
 	return byte(i + 'A')
 }
 
+// Setting up reflector structure
 type reflector struct {
 	wiring string
 }
 
+// Function for reflector to map the inputted byte (c) to the letter/value
+// that's 13 positions ahead of the given byte (wrapping around after letter/index 26 to avoid unwanted range/value(s))
 func (r *reflector) reflect(c byte) byte {
 	i := strings.IndexByte(r.wiring, c)
 	return r.wiring[(i+13)%26]
 }
 
+// Setting up plugboard structure
 type plugboard struct {
 	pairs map[byte]byte
 }
 
+// Function for plugboard to take individual bytes from plaintext
+// and checks for a paired value (letter) for the given byte
+// and returns that associated value if there is correspondence
 func (p *plugboard) plug(c byte) byte {
 	if v, ok := p.pairs[c]; ok {
 		return v
@@ -41,12 +53,15 @@ func (p *plugboard) plug(c byte) byte {
 	return c
 }
 
+// Setting up enigma machine structure
 type enigma struct {
 	rotors    []*rotor
 	reflector *reflector
 	plugboard *plugboard
 }
 
+// Iterates through each element of the plaintext as individual bytes, moves rotor forward, applies
+// reflector and plugboard, and then converts "encrypted" byte(s) and returns em as output
 func (e *enigma) forward(c byte) byte {
 	for i := len(e.rotors) - 1; i >= 0; i-- {
 		c = e.rotors[i].forward(c)
@@ -59,14 +74,18 @@ func (e *enigma) forward(c byte) byte {
 	return c
 }
 
+// Function to encrypt plaintext
 func (e *enigma) encrypt(s string) string {
 	out := make([]byte, len(s))
 	for i := 0; i < len(s); i++ {
 		out[i] = e.forward(s[i])
 	}
+	// Performs the forward function above this function, takes the returned bytes
+	// and outputs those bytes converted into a string
 	return string(out)
 }
 
+// Setting up Enigma Machine with predefined rotors, reflector, and plugboard
 func main() {
 	r1 := &rotor{wiring: "EKMFLGDQVZNTOWYHXUSPAIBRCJ", offset: 0}
 	r2 := &rotor{wiring: "AJDKSIRUXBLHWTMCQGZNPYFVOE", offset: 0}
@@ -74,6 +93,7 @@ func main() {
 	ref := &reflector{wiring: "YRUHQSLDPXNGOKMIEBFZCWVJAT"}
 	pb := &plugboard{pairs: map[byte]byte{'A': 'B', 'C': 'D', 'E': 'F'}}
 	e := &enigma{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
+	// Encrypts the set plaintext and prints that alongside encrypted ciphertext
 	plaintext := "HELLO WORLD"
 	ciphertext := e.encrypt(plaintext)
 	fmt.Println("Plaintext:", plaintext)
