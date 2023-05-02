@@ -54,7 +54,7 @@ func (p *plugboard) plug(c byte) byte {
 }
 
 // Setting up enigma machine structure
-type enigma struct {
+type enigmamachine struct {
 	rotors    []*rotor
 	reflector *reflector
 	plugboard *plugboard
@@ -62,7 +62,7 @@ type enigma struct {
 
 // Iterates through each element of the plaintext as individual bytes, moves rotor forward, applies
 // reflector and plugboard, and then converts "encrypted" byte(s) and returns em as output
-func (e *enigma) forward(c byte) byte {
+func (e *enigmamachine) forward(c byte) byte {
 	for i := len(e.rotors) - 1; i >= 0; i-- {
 		c = e.rotors[i].forward(c)
 	}
@@ -75,7 +75,7 @@ func (e *enigma) forward(c byte) byte {
 }
 
 // Function for moving rotors backwards similar to the function above for moving em forward
-func (e *enigma) backward(c byte) byte {
+func (e *enigmamachine) backward(c byte) byte {
 	c = e.plugboard.plug(c)
 	for i := len(e.rotors) - 1; i >= 0; i-- {
 		c = e.rotors[i].forward(c)
@@ -88,7 +88,7 @@ func (e *enigma) backward(c byte) byte {
 }
 
 // Function to encrypt plaintext
-func (e *enigma) encrypt(s string) string {
+func (e *enigmamachine) encrypt(s string) string {
 	out := make([]byte, len(s))
 	for i := 0; i < len(s); i++ {
 		out[i] = e.forward(s[i])
@@ -99,7 +99,7 @@ func (e *enigma) encrypt(s string) string {
 }
 
 // Function to decrypt ciphertext
-func (e *enigma) decrypt(s string) string {
+func (e *enigmamachine) decrypt(s string) string {
 	out := make([]byte, len(s))
 	for i := 0; i < len(s); i++ {
 		out[i] = e.backward(s[i])
@@ -108,7 +108,7 @@ func (e *enigma) decrypt(s string) string {
 }
 
 // Function to reset rotor positions to initial values
-func (e *enigma) reset() {
+func (e *enigmamachine) reset() {
 	for _, rotor := range e.rotors {
 		rotor.offset = 0
 	}
@@ -121,7 +121,7 @@ func main() {
 	r3 := &rotor{wiring: "BDFHJLCPRTXVZNYEIWGAKMUSQO", offset: 0}
 	ref := &reflector{wiring: "YRUHQSLDPXNGOKMIEBFZCWVJAT"}
 	pb := &plugboard{pairs: map[byte]byte{'E': 'Z', 'S': 'H'}}
-	e := &enigma{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
+	e := &enigmamachine{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
 
 	// Reset rotor position before encrypting
 	e.reset()
