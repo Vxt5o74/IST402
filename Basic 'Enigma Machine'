@@ -89,22 +89,22 @@ func (e *enigmamachine) backward(c byte) byte {
 
 // Function to encrypt plaintext
 func (e *enigmamachine) encrypt(s string) string {
-	out := make([]byte, len(s))
+	output := make([]byte, len(s))
 	for i := 0; i < len(s); i++ {
-		out[i] = e.forward(s[i])
+		output[i] = e.forward(s[i])
 	}
 	// Performs the forward function above this function, takes the returned bytes
 	// and outputs those bytes converted into a string
-	return string(out)
+	return string(output)
 }
 
 // Function to decrypt ciphertext
 func (e *enigmamachine) decrypt(s string) string {
-	out := make([]byte, len(s))
+	output := make([]byte, len(s))
 	for i := 0; i < len(s); i++ {
-		out[i] = e.backward(s[i])
+		output[i] = e.backward(s[i])
 	}
-	return string(out)
+	return string(output)
 }
 
 // Function to reset rotor positions to initial values
