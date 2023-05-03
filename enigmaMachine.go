@@ -68,13 +68,20 @@ type enigmamachine struct {
 // Iterates through each element of the plaintext as individual bytes, moves rotor forward, applies
 // reflector and plugboard, and then converts "encrypted" byte(s) and returns em as output
 func (e *enigmamachine) forward(c byte) byte {
+	// Passes each letter byte/letter through rotor to be encrypted
 	for i := len(e.rotors) - 1; i >= 0; i-- {
 		c = e.rotors[i].forward(c)
 	}
+	// Outputted byte from above has the reflector used on it
+	// (changes letter based on reflector config)
 	c = e.reflector.reflect(c)
+	// Sends new byte/letter from above back through the rotors
 	for i := 0; i < len(e.rotors); i++ {
 		c = e.rotors[i].backward(c)
 	}
+	// If the letter/byte that's spit out after going through the rotors
+	// a 2nd time has a paired letter on the plugboard, it'll
+	// be changed to that letter
 	c = e.plugboard.plug(c)
 	return c
 }
