@@ -1,35 +1,28 @@
 package main
 
 import (
+	"crypto/elliptic"
 	"fmt"
-	Ecies "github.com/ecies/go/v2"
+
+	"gitlab.com/elktree/ecc"
 )
 
 func main() {
-	//asks user to provide input to be encrypted and decrypted
-	fmt.Println("Provide user string: ")
-	var UserString string
-	fmt.Scanln(&UserString)
+	// Get message to be encrypted
+	fmt.Println("What would you like to encrypt?")
+	var message string
+	fmt.Scanln(&message)
 
-	//generating key to be used in encryption and decryption
-	k, err := Ecies.GenerateKey()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Key pair has been generated: ", k)
+	// Create the key(s)
+	pub, priv, _ := ecc.GenerateKeys(elliptic.P256())
+	fmt.Println("Key:", pub)
 
-	//encrypts provided plaintext using the key generated
-	ciphertext, err := Ecies.Encrypt(k.PublicKey, []byte(UserString))
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Plaintext encrypted: ", ciphertext)
+	// Encrypting the message using the key made above
+	ciphertext, _ := pub.Encrypt([]byte(message))
+	fmt.Println("Ciphertext:", len(ciphertext))
 
-	//decrypts the newly made ciphertext using the key generated
-	plaintext, err := Ecies.Decrypt(k, ciphertext)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Ciphertext decrypted: ", string(plaintext))
+	// Decrypting the ciphertext back to plaintext using aforementioned key
+	plaintext, _ := priv.Decrypt(ciphertext)
+	fmt.Println("Plaintext:", string(plaintext))
 
 }
