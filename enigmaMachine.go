@@ -94,17 +94,19 @@ func (e *enigmamachine) backward(c byte) byte {
 
 // Function to encrypt plaintext
 func (e *enigmamachine) encrypt(s string) string {
+	// Iterates through the provided message as bytes, sends each letter through
+	// the rotors moving forward, and then spits out returned bytes as the output
 	output := make([]byte, len(s))
 	for i := 0; i < len(s); i++ {
 		output[i] = e.forward(s[i])
 	}
-	// Performs the forward function above this function, takes the returned bytes
-	// and outputs those bytes converted into a string
+	// Gives out returned byte(s) as a string
 	return string(output)
 }
 
 // Function to decrypt ciphertext
 func (e *enigmamachine) decrypt(s string) string {
+	// Does the same thing as the encrypt function, just backwards
 	output := make([]byte, len(s))
 	for i := 0; i < len(s); i++ {
 		output[i] = e.backward(s[i])
@@ -114,6 +116,8 @@ func (e *enigmamachine) decrypt(s string) string {
 
 // Function to reset rotor positions to initial values
 func (e *enigmamachine) reset() {
+	// Goes through every rotor in the machine (all 3 of em) and
+	// returns their position/offset to 0
 	for _, rotor := range e.rotors {
 		rotor.offset = 0
 	}
@@ -126,32 +130,33 @@ func main() {
 	var reflector_config string
 	fmt.Scanln(&reflector_config)
 	
-	// Setting up rotor configs
+	// Sets up rotor configs
 	r1 := &rotor{wiring: "EKMFLGDQVZNTOWYHXUSPAIBRCJ", offset: 0}
 	r2 := &rotor{wiring: "AJDKSIRUXBLHWTMCQGZNPYFVOE", offset: 0}
 	r3 := &rotor{wiring: "BDFHJLCPRTXVZNYEIWGAKMUSQO", offset: 0}
 	
 	// Enters reflector config that the user inputted earlier in after capitalizing entire string
 	// (If it wasn't entirely uppercase already)
+	// Also sets up the machine with the rotors and plugboard and any pairs to be connected
 	ref := &reflector{wiring: strings.ToUpper(reflector_config)}
 	pb := &plugboard{pairs: map[byte]byte{}}
-	
-	// Adding plugboard connections
+	e := &enigmamachine{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
+
 	pb.addConnection('E', 'Z')
 	pb.addConnection('S', 'H')
 	pb.addConnection('A', 'F')
 	pb.addConnection('G', 'M')
-	e = &enigmamachine{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
 	
 	// Reset rotor position before encrypting
 	e.reset()
 
-	// Establish message to be encrypted and well, encrypt it
+	// Establish the message to be encrypted and well, encrypt it
 	message := "CHEESEBURGER"
 	ciphertext := e.encrypt(message)
 
 	// Prints out the original msg for reference and the encrypted ciphertext
 	fmt.Println("Message:", message)
+	fmt.Println("Reflector config:", reflector_config)
 	fmt.Println("Ciphertext:", ciphertext)
 
 	// Reset rotor positions after encrypting the message
