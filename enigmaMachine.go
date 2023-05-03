@@ -134,14 +134,15 @@ func (e *enigmamachine) reset() {
 func main() {
 	// Request reflector configuration
 	fmt.Println("Please provide a reflector configuration you'd like to use: (a string of every letter in the alphabet used once)")
+	fmt.Println("No need to worry about capitalization either, we got that covered for ya")
 	var reflector_config string
 	fmt.Scanln(&reflector_config)
-	
+
 	// Sets up rotor configs
 	r1 := &rotor{wiring: "EKMFLGDQVZNTOWYHXUSPAIBRCJ", offset: 0}
 	r2 := &rotor{wiring: "AJDKSIRUXBLHWTMCQGZNPYFVOE", offset: 0}
 	r3 := &rotor{wiring: "BDFHJLCPRTXVZNYEIWGAKMUSQO", offset: 0}
-	
+
 	// Enters reflector config that the user inputted earlier in after capitalizing entire string
 	// (If it wasn't entirely uppercase already)
 	// Also sets up the machine with the rotors and plugboard and any pairs to be connected
@@ -153,7 +154,7 @@ func main() {
 	pb.addConnection('S', 'H')
 	pb.addConnection('A', 'F')
 	pb.addConnection('G', 'M')
-	
+
 	// Reset rotor position before encrypting
 	e.reset()
 
@@ -163,7 +164,7 @@ func main() {
 
 	// Prints out the original msg for reference and the encrypted ciphertext
 	fmt.Println("Message:", message)
-	fmt.Println("Reflector config:", reflector_config)
+	fmt.Println("Reflector Config:", reflector_config)
 	fmt.Println("Ciphertext:", ciphertext)
 
 	// Reset rotor positions after encrypting the message
@@ -173,3 +174,4 @@ func main() {
 	plaintext := e.decrypt(ciphertext)
 	fmt.Println("Plaintext:", plaintext)
 }
+
