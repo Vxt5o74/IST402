@@ -121,16 +121,28 @@ func (e *enigmamachine) reset() {
 
 // Setting up Enigma Machine with predefined rotors, reflector, and plugboard
 func main() {
+	// Request reflector configuration
+	fmt.Println("Please provide a reflector configuration you'd like to use: (a string of every letter in the alphabet used once)")
+	var reflector_config string
+	fmt.Scanln(&reflector_config)
+	
+	// Setting up rotor configs
 	r1 := &rotor{wiring: "EKMFLGDQVZNTOWYHXUSPAIBRCJ", offset: 0}
 	r2 := &rotor{wiring: "AJDKSIRUXBLHWTMCQGZNPYFVOE", offset: 0}
 	r3 := &rotor{wiring: "BDFHJLCPRTXVZNYEIWGAKMUSQO", offset: 0}
-	ref := &reflector{wiring: "YRUHQSLDPXNGOKMIEBFZCWVJAT"}
+	
+	// Enters reflector config that the user inputted earlier in after capitalizing entire string
+	// (If it wasn't entirely uppercase already)
+	ref := &reflector{wiring: strings.ToUpper(reflector_config)}
 	pb := &plugboard{pairs: map[byte]byte{}}
+	
+	// Adding plugboard connections
 	pb.addConnection('E', 'Z')
 	pb.addConnection('S', 'H')
 	pb.addConnection('A', 'F')
 	pb.addConnection('G', 'M')
-	e := &enigmamachine{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
+	e = &enigmamachine{rotors: []*rotor{r1, r2, r3}, reflector: ref, plugboard: pb}
+	
 	// Reset rotor position before encrypting
 	e.reset()
 
